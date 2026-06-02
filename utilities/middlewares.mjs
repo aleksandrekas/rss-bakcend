@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken"
 
 
 export function authenticateToken(request,response,next){
+    // this middleware authenticates token and  passes it to next middleware
+    
     const header = request.header["authorization"]
     if(!header){
         return response.status(404).json({error:"header missing!"})
