@@ -1,6 +1,6 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
-
+import dataBase from "../utilities/db.mjs";
 
 
 
@@ -43,17 +43,32 @@ function headerAuth(request, response, next) {
 
 
 
-signupRouter.post('/',headerAuth,async (request,response)=>{
+signupRouter.post('/',headerAuth, async (request,response)=>{
     const  {username,email,password} = request.body
     const hashedpassword = await bcrypt.hash(password,13)
 
+    const signupQuery = `insert into users(username,email,password,theme,refinterval) values($1,$2,$3,$4,$5)`
+    const userQuery = `select id from users where email = $1`
 
-
-    response.send({
-        user:username,
-        email:email,
-        password:hashedpassword
+    dataBase.query(userQuery,[emal],async (error,result)=>{
+        if(error){
+            return response.status(500).send(error)
+        }
+        if(result.rows[0].length === 0){
+            await dataBase.query(signupQuery,[username,email,hashedpassword,"light",5],(error)=>{
+                if(error){
+                    return response.status(500).send(error)
+                }else{
+                    return response.status(200).send("register succesfull")
+                }
+            })
+        }else{
+            return response.send("email registered")
+        }
     })
+
+
+
 })
 
 
